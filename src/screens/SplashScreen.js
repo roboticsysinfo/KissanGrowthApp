@@ -6,7 +6,7 @@ import  appLogo  from "../../src/assets/farmer.png"
 const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace('Register');
+      navigation.replace('Select Language');
     }, 2000); // Navigate to Login Screen after 2 seconds
 
     return () => clearTimeout(timer);

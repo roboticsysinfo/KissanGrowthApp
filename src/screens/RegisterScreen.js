@@ -6,8 +6,12 @@ import appLogo from "../../src/assets/farmer.png";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { registerFarmer, resetFarmerState } from "../redux/slices/authSlice";
+import { useTranslation } from "react-i18next";
 
 const RegisterScreen = () => {
+
+  const { t, i18n } = useTranslation();
+  const language = useSelector((state) => state.language.language);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -66,35 +70,44 @@ const RegisterScreen = () => {
     }
   }, [success, error]);
 
+  // update language
+  React.useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [language]);
+
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+
+    <ScrollView key={language} contentContainerStyle={styles.container}>
       <View style={styles.logoContainer}>
         <Image source={appLogo} style={styles.logo} />
-        <Text style={styles.title}>Farmer Registration</Text>
+        <Text style={styles.title}>{t('Farmer Registration')}</Text>
       </View>
 
-      <TextInput label="Full Name" mode="outlined" value={fullName} onChangeText={setFullName} style={styles.input} />
-      <TextInput label="Email" mode="outlined" keyboardType="email-address" value={email} onChangeText={setEmail} style={styles.input} />
-      <TextInput label="Phone Number" mode="outlined" keyboardType="phone-pad" value={phoneNumber} onChangeText={setPhoneNumber} style={styles.input} />
-      <TextInput label="Address" mode="outlined" value={address} onChangeText={setAddress} style={styles.input} />
-      <TextInput label="Password" mode="outlined" secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
+      <TextInput label={t('Full Name')} mode="outlined" value={fullName} onChangeText={setFullName} style={styles.input} />
+      <TextInput label={t('Email')} mode="outlined" keyboardType="email-address" value={email} onChangeText={setEmail} style={styles.input} />
+      <TextInput label={t('Enter Phone Number')} mode="outlined" keyboardType="phone-pad" value={phoneNumber} onChangeText={setPhoneNumber} style={styles.input} />
+      <TextInput label={t('Address')} mode="outlined" value={address} onChangeText={setAddress} style={styles.input} />
+      <TextInput label={t('Password')} mode="outlined" secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
 
       <Button mode="outlined" onPress={pickAadharCard} style={styles.uploadButton}>
-        Upload Aadhar Card
+        {t('Upload Aadhar Card')}
       </Button>
 
       {aadharCardImage && <Image source={{ uri: aadharCardImage.uri }} style={styles.previewImage} />}
 
       <Button mode="contained" onPress={handleRegister} style={styles.registerButton} loading={loading} disabled={loading}>
-        {loading ? "Registering..." : "Register"}
+        {loading ? t('Registering') : t('Register')}
       </Button>
+
 
       <TouchableOpacity onPress={() => navigation.navigate("Login")}>
         <Text style={styles.loginText}>
-          Already have an account? <Text style={styles.link}>Login here</Text>
+          {t('Already have an account?')} <Text style={styles.link}>{t('Login here')}</Text>
         </Text>
       </TouchableOpacity>
     </ScrollView>
+
   );
 };
 

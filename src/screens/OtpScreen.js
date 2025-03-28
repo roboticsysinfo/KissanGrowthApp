@@ -7,15 +7,20 @@ import {
   StyleSheet,
   ActivityIndicator,
   ToastAndroid,
+  Alert,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { loginWithOTP } from '../redux/slices/authSlice'; // Import Redux action
 import { COLORS } from '../../theme';
 
-const OtpScreen = () => {
+const OtpScreen = ({ route }) => {
   const [otp, setOtp] = useState(['', '', '', '']);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { loading, error, token } = useSelector((state) => state.auth);
+  const phoneNumber = route.params?.phoneNumber; // Get phone number from navigation params
 
   const inputs = useRef([]);
 
@@ -42,7 +47,14 @@ const OtpScreen = () => {
       return;
     }
 
-    dispatch(verifyOtp({ phoneNumber, otp: otpCode }));
+    dispatch(loginWithOTP({ phoneNumber, otp: otpCode })).then((result) => {
+      if (loginWithOTP.fulfilled.match(result)) {
+        AsyncStorage.setItem("token", result.payload.token);
+        navigation.replace("Home"); // Navigate to home screen after login
+      } else {
+        Alert.alert("Error", result.payload?.message || "Invalid OTP");
+      }
+    });
   };
 
   return (
@@ -70,23 +82,24 @@ const OtpScreen = () => {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#FF6600" />
+        <ActivityIndicator size="large" color={COLORS.primaryColor} />
       ) : (
         <TouchableOpacity style={styles.verifyButton} onPress={handleVerify}>
           <Text style={styles.verifyButtonText}>Verify OTP</Text>
         </TouchableOpacity>
       )}
+
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 };
 
 export default OtpScreen;
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.primaryColor,
+    backgroundColor: "#fff",
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -124,7 +137,7 @@ const styles = StyleSheet.create({
     borderColor: '#444',
     backgroundColor: '#fff',
     color: '#333',
-    borderRadius: 10,
+    borderRadius: 4,
     textAlign: 'center',
     fontSize: 24,
     marginHorizontal: 8,
@@ -133,10 +146,10 @@ const styles = StyleSheet.create({
   },
 
   verifyButton: {
-    backgroundColor: '#FF6600',
+    backgroundColor: COLORS.primaryColor,
     paddingVertical: 14,
     paddingHorizontal: 60,
-    borderRadius: 10,
+    borderRadius: 4,
   },
   verifyButtonText: {
     color: '#fff',
